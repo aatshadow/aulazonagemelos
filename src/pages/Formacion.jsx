@@ -2,32 +2,35 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { PlayCircle, CheckCircle2, ChevronLeft, ChevronRight, FileText, Lock } from 'lucide-react'
 import { PageHeader, Tag, Btn, Bar, Card, Banner } from '../ui/index.jsx'
-import { useData, avanceSeccion, leccionesDe } from '../data/store.jsx'
+import { useData, avanceSeccion, leccionesDe, seccionAbierta } from '../data/store.jsx'
+import { RANGOS } from '../data/bootcamp.js'
+import { Pulsera } from '../ui/camino.jsx'
 import { cn } from '../utils/cn.js'
 
 /* FORMACIÓN · sección → módulo → lección → entregables. La jerarquía del plan §4, sin renombrar
    nada. El avance se calcula (vistas / lecciones), no se guarda. */
 /* Tres pisos (orden de Alex, 18-09): Fundamentos en grande · los dos caminos (avatar / tú) · las
    cuatro verticales debajo. */
+/* Desde el 02-10 el temario se abre por RANGO. Fundamentos vive en el bootcamp (arriba, como entrada). */
 const GRUPOS = [
-  { k: 'base', kicker: 'Empieza aquí', titulo: 'Fundamentos', grid: 'grid-cols-1' },
-  { k: 'camino', kicker: 'Elige cómo hacerlo', titulo: 'Los dos caminos', grid: 'md:grid-cols-2' },
-  { k: 'vertical', kicker: 'Y en qué', titulo: 'Las verticales', grid: 'grid-cols-2 xl:grid-cols-4' },
+  { k: 'camino', titulo: 'Los dos caminos, completos', sub: 'Con la cara o con un avatar. Se abren el día 15 del bootcamp, cuando eliges cómo vas a hacerlo.', grid: 'md:grid-cols-2' },
+  { k: 'escala', titulo: 'Testing y escala', sub: 'Cuando ya no pierdes dinero.', grid: 'grid-cols-1' },
+  { k: 'vertical', titulo: 'Las verticales', sub: 'Lo específico de cada mercado. En preparación.', grid: 'grid-cols-2 xl:grid-cols-4' },
 ]
-function TarjetaSeccion({ s, a, grande }) {
-  const estado = a.pct === 100 ? ['Completada', 'green'] : a.pct > 0 ? ['En curso', undefined] : ['Sin empezar', 'grey']
+function TarjetaSeccion({ s, a, grande, abierta }) {
+  const estado = !abierta ? null : a.pct === 100 ? ['Completada', 'green'] : a.pct > 0 ? ['En curso', undefined] : ['Sin empezar', 'grey']
   return (
-    <div className={cn('card hover h-full flex flex-col', grande ? 'gold p-6 md:p-8 md:flex-row md:items-center md:gap-10' : 'p-5', !s.comprado && 'opacity-60')}>
+    <div className={cn('card h-full flex flex-col', abierta && 'hover', grande ? 'gold p-6 md:p-8 md:flex-row md:items-center md:gap-10' : 'p-5', !abierta && 'opacity-70')}>
       <div className={cn('flex-1 flex flex-col', grande && 'md:flex-none md:w-[46%]')}>
-        <div className="flex items-center justify-between"><Tag tone={estado[1]}>{estado[0]}</Tag>{!s.comprado && <Lock size={15} className="text-dimmer" />}</div>
-        <b className={cn('block mt-3 tracking-[-0.02em]', grande ? 'text-[28px] md:text-[34px] leading-none' : 'text-[19px]')}>{s.nombre}</b>
+        <div className="flex items-center justify-between gap-2">{estado ? <Tag tone={estado[1]}>{estado[0]}</Tag> : s.pronto ? <Tag tone="grey">En preparación</Tag> : s.desdeDia && s.rango === 0 ? <span className="flex items-center gap-2 text-dimmer text-[12.5px]"><Lock size={13} /> Se abre el día {s.desdeDia} del bootcamp</span> : <span className="flex items-center gap-2 text-dimmer text-[12.5px]"><Lock size={13} /> Se abre en <Pulsera rango={s.rango} chica /></span>}</div>
+        <b className={cn('block mt-3 display', grande ? 'text-[30px] md:text-[36px] leading-none' : 'text-[22px] leading-tight')}>{s.nombre}</b>
         <p className={cn('text-dim mt-2 flex-1', grande ? 'text-[15px]' : 'text-[13.5px]')}>{s.desc}</p>
-        <Bar pct={a.pct} className="mt-4" />
-        <div className="text-xs text-dim mt-1.5 mono">{s.modulos.length} módulos · {a.vistas}/{a.total} lecciones · {a.pct} %</div>
+        {abierta && <><Bar pct={a.pct} className="mt-4" /><div className="text-xs text-dim mt-1.5">{a.vistas} de {a.total} clases vistas</div></>}
+        {!abierta && !s.pronto && <div className="text-xs text-dimmer mt-4">{s.modulos.reduce((n, m) => n + m.lecciones.length, 0)} clases</div>}
       </div>
       {grande && (
         <div className="mt-6 md:mt-0 flex-1 grid gap-2">
-          {s.modulos.map((m, i) => <div key={m.id} className="flex items-center gap-3 rounded-[14px] px-4 py-3 bg-ink/60 border border-line-soft"><span className="num text-gold-2 font-extrabold">{String(i + 1).padStart(2, '0')}</span><span className="flex-1 text-[14.5px]">{m.nombre}</span><span className="num text-xs text-dimmer">{m.lecciones.length} lecciones</span></div>)}
+          {s.modulos.map((m, i) => <div key={m.id} className="flex items-center gap-3 rounded-[14px] px-4 py-3 bg-ink/60 border border-line-soft"><span className="display text-gold-2 text-[20px] w-5">{i + 1}</span><span className="flex-1 text-[14.5px]">{m.nombre}</span><span className="num text-xs text-dimmer">{m.lecciones.length} lecciones</span></div>)}
         </div>
       )}
     </div>
@@ -36,18 +39,25 @@ function TarjetaSeccion({ s, a, grande }) {
 export default function Formacion() {
   const { state } = useData()
   const { secciones } = state
-  const grupos = new Set(secciones.map((s) => s.grupo))
-  const sub = grupos.size > 1 ? 'Primero la base. Después eliges cómo hacerlo —con el avatar o dando la cara— y en qué vertical.' : (state.formaciones?.[0]?.descripcion || 'Sección a sección, en orden.')
   return (
     <div>
-      <PageHeader kicker="Formación" title="Tus secciones" sub={sub} />
-      <div className="flex flex-col gap-10">
+      <p className="text-dim text-[15px] mb-2">Formación</p>
+      <h1 className="text-[38px] md:text-[52px]">Temario.</h1>
+      <p className="text-dim text-[16px] mt-3 max-w-[60ch]">Empiezas por el bootcamp. El resto se abre al subir de rango: así siempre sabes qué viene y para qué subir.</p>
+      <Link to="/bootcamp" className="entrada mt-8 block" style={{ gridTemplateColumns: '1fr', WebkitMask: 'none', mask: 'none' }}>
+        <div className="p-6 md:p-7 flex flex-wrap items-center gap-6">
+          <span className="display text-[56px] leading-[.85] text-gold-3">30</span>
+          <div className="flex-1 min-w-[220px]"><div className="display text-[26px] leading-tight">Bootcamp: Fundamentos en 30 píldoras</div><div className="text-dim text-[14.5px] mt-1">Una al día, diez minutos como mucho. Meta: tu primera conversión.</div></div>
+          <span className="btn primary">Ir al bootcamp</span>
+        </div>
+      </Link>
+      <div className="flex flex-col gap-12 mt-12">
         {GRUPOS.map((g) => { const lista = secciones.filter((s) => s.grupo === g.k); if (!lista.length) return null; return (
           <section key={g.k}>
-            <div className="flex items-baseline gap-3 mb-3"><span className="kicker">{g.kicker}</span><span className="text-dimmer text-[13px]">{g.titulo}</span></div>
+            <h2 className="text-[26px]">{g.titulo}</h2><p className="text-dimmer text-[14px] mt-1 mb-4">{g.sub}</p>
             <div className={cn('grid gap-4', g.grid)}>
-              {lista.map((s) => { const a = avanceSeccion(state, s); const t = <TarjetaSeccion s={s} a={a} grande={g.k === 'base' && grupos.size > 1 || lista.length === 1} />
-                return s.comprado ? <Link key={s.id} to={`/formacion/${s.id}`}>{t}</Link> : <div key={s.id}>{t}</div> })}
+              {lista.map((s) => { const a = avanceSeccion(state, s); const ab = seccionAbierta(state, s); const t = <TarjetaSeccion s={s} a={a} abierta={ab} grande={lista.length === 1 && ab} />
+                return ab ? <Link key={s.id} to={`/formacion/${s.id}`}>{t}</Link> : <div key={s.id}>{t}</div> })}
             </div>
           </section>) })}
       </div>
@@ -60,7 +70,7 @@ export function Seccion() {
   const { state } = useData()
   const s = state.secciones.find((x) => x.id === sec)
   if (!s) return <Banner tone="red">Sección no encontrada.</Banner>
-  if (!s.comprado) return <Banner tone="grey"><Lock size={14} className="inline mr-1" /> No tienes acceso a esta sección.</Banner>
+  if (!seccionAbierta(state, s)) return <Banner tone="grey"><Lock size={14} className="inline mr-1" /> {s.pronto ? 'Esta sección está en preparación.' : s.desdeDia && s.rango === 0 ? `Esta sección se abre el día ${s.desdeDia} del bootcamp.` : `Esta sección se abre en ${RANGOS[s.rango].nombre}.`} <Link to="/perfil" className="text-gold-2">Ver la escalera</Link></Banner>
   const a = avanceSeccion(state, s)
   return (
     <div>
@@ -100,7 +110,7 @@ export function Leccion() {
   const m = s?.modulos.find((mm) => mm.lecciones.some((x) => x.id === lec))
   useEffect(() => { if (l) acciones.abrirLeccion(l.id) }, [lec])
   if (!s || !l) return <Banner tone="red">Lección no encontrada.</Banner>
-  if (!s.comprado) return <Banner tone="grey"><Lock size={14} className="inline mr-1" /> No tienes acceso a esta sección.</Banner>
+  if (!seccionAbierta(state, s)) return <Banner tone="grey"><Lock size={14} className="inline mr-1" /> {s.desdeDia && s.rango === 0 ? `Esta sección se abre el día ${s.desdeDia} del bootcamp.` : `Esta sección se abre en ${RANGOS[s.rango].nombre}.`}</Banner>
   const vista = state.vistas.includes(l.id)
   const ant = todas[i - 1]; const sig = todas[i + 1]
   const rec = l.recursos || []

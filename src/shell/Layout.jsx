@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Sidebar from './Sidebar.jsx'
-import { useData } from '../data/store.jsx'
+import { useData, ESCENARIOS } from '../data/store.jsx'
 import { Logo } from '../ui/Logo.jsx'
 
-const ROLES = [['alumno', 'Alumno'], ['direccion', 'Dirección']]
+const ROLES = [['alumno', 'Alumno'], ['moderador', 'Moderador'], ['direccion', 'Dirección (admin)']]
 
 export default function Layout() {
   const { state, acciones } = useData()
@@ -32,10 +32,18 @@ export default function Layout() {
           <select className="input" style={{ width: 'auto', padding: '4px 10px', fontSize: 13 }} value={state.rol} onChange={(e) => acciones.cambiarRol(e.target.value)}>
             {ROLES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
+          <select className="input hide-mobile" style={{ width: 'auto', padding: '4px 10px', fontSize: 13 }} value="" onChange={(e) => e.target.value && acciones.escenario(e.target.value)} aria-label="Escenario">
+            <option value="">Saltar a…</option>
+            {Object.entries(ESCENARIOS).map(([k, v]) => <option key={k} value={k}>{v.nombre}</option>)}
+          </select>
           <span className="flex-1" />
+          <button className="btn ghost sm hide-mobile" onClick={acciones.pasarDia} title="Avanza el reloj un día (solo en la vista previa)">Simular mañana</button>
           <button className="btn outline sm" onClick={acciones.reiniciarDemo}>Reiniciar</button>
         </div>
-        <main className="flex-1 overflow-auto"><div className="max-w-[1180px] mx-auto px-4 md:px-8 py-6 md:py-8"><Outlet /></div></main>
+        {/* la comunidad va a sangre (estilo Discord): sin márgenes ni scroll de página; el resto, con su columna */}
+        {loc.pathname.startsWith('/comunidad')
+          ? <main className="flex-1 min-h-0 overflow-hidden"><Outlet /></main>
+          : <main className="flex-1 overflow-auto"><div className="max-w-[1180px] mx-auto px-4 md:px-8 py-6 md:py-8"><Outlet /></div></main>}
       </div>
     </div>
   )

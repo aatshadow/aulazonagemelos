@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
-/* AULA · ZONA GEMELOS VIP · sistema visual. Extraído de sus landings (15-08-2026) y del prototipo
-   del 09-09: negro puro, un solo acento champán, Geist para todo y Geist Mono para etiquetas y
-   cifras. Radio de marca 22 (tarjetas) · 14 (piezas) · 10 (chips). Sin más colores que estos. */
+/* AULA · ZONA GEMELOS VIP · sistema visual v2 (02-10-2026): «la noche». Se mantiene la marca de sus landings
+   (negro puro + un acento champán). Letra: Rubik, redonda y gruesa, una sola familia (Alex 02-10: «más redondo y
+   bold, no tiene que verse elegante»; la Bodoni se descartó). Fuera la mono en mayúsculas de las etiquetas. Los únicos colores nuevos son
+   los de las pulseras (rangos), y solo viven en la pulsera. Lo memorable es la ENTRADA (30 días perforados) y la PULSERA. */
 @theme {
   --color-black: #000000;
   --color-ink: #08070A;
@@ -23,8 +24,9 @@
   --color-faint: #52525B;
   --color-red: #EF4444;
   --color-green: #8FBF9F;
-  --font-sans: "Geist", "Inter Tight", system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Rubik", system-ui, -apple-system, sans-serif;
+  --font-display: "Rubik", system-ui, sans-serif;
+  --font-mono: "Rubik", system-ui, sans-serif;
   --radius-card: 22px;
   --radius-piece: 14px;
   --radius-chip: 10px;
@@ -32,24 +34,25 @@
 
 html, body, #root { height: 100%; }
 body { margin: 0; background: var(--color-black); color: var(--color-white); font-family: var(--font-sans); font-weight: 400; -webkit-font-smoothing: antialiased; }
-h1, h2, h3 { font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
 b, strong { font-weight: 600; }
 input, select, textarea, button { font: inherit; }
 ::selection { background: var(--color-gold); color: var(--color-on-gold); }
 * { scrollbar-width: thin; scrollbar-color: var(--color-sur-top) transparent; }
 
 @layer components {
-.kicker { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--color-gold); }
+.kicker { font-family: var(--font-sans); font-size: 12.5px; font-weight: 500; letter-spacing: .005em; color: var(--color-gold); }
 .kicker.dim { color: var(--color-dimmer); }
-.mono { font-family: var(--font-mono); }
+.mono { font-variant-numeric: tabular-nums; }
+.display { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.025em; }
 .card { background: linear-gradient(180deg, var(--color-sur-hi), var(--color-sur)); border: 1px solid var(--color-line-soft); border-radius: var(--radius-card); }
 .card.gold { border-color: var(--color-line); }
 .card.hover { transition: transform .18s cubic-bezier(.32,.72,0,1), border-color .18s; }
 .card.hover:hover { transform: translateY(-2px); border-color: var(--color-line); }
-.chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 13px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: var(--color-sur-top); color: var(--color-dim); white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 500; background: var(--color-sur-top); color: var(--color-dim); white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
 .chip:hover { border-color: var(--color-line); color: var(--color-white); }
 .chip.on { background: var(--color-gold); color: var(--color-on-gold); }
-.tag { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 10px; font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; background: color-mix(in srgb, var(--color-gold) 14%, transparent); color: var(--color-gold-2); border: 1px solid var(--color-line); }
+.tag { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 10px; font-size: 11.5px; font-weight: 500; background: color-mix(in srgb, var(--color-gold) 14%, transparent); color: var(--color-gold-2); border: 1px solid var(--color-line); }
 .tag.gold { background: var(--color-gold); color: var(--color-on-gold); border-color: transparent; }
 .tag.grey { background: var(--color-sur-top); color: var(--color-dim); border-color: transparent; }
 .tag.red { background: rgba(239,68,68,.12); color: #FCA5A5; border-color: rgba(239,68,68,.35); }
@@ -68,7 +71,7 @@ textarea.input { min-height: 96px; resize: vertical; }
 .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--color-sur-top); color: var(--color-gold-2); font-family: var(--font-mono); font-weight: 700; overflow: hidden; flex: 0 0 auto; border: 1px solid var(--color-line); }
 .avatar.gold { background: linear-gradient(135deg, var(--color-gold-2), var(--color-gold-deep)); color: var(--color-on-gold); border-color: transparent; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-.ph { background: var(--color-ink); border: 1px dashed var(--color-line); color: var(--color-dimmer); display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 12px; border-radius: var(--radius-piece); }
+.ph { background: var(--color-ink); border: 1px dashed var(--color-line); color: var(--color-dimmer); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; padding: 12px; border-radius: var(--radius-piece); }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-chip); font-size: 14px; color: var(--color-dim); text-decoration: none; border: 1px solid transparent; }
 .nav-item:hover { background: var(--color-sur-hi); color: var(--color-white); }
 .nav-item.active { background: color-mix(in srgb, var(--color-gold) 12%, transparent); color: var(--color-gold-2); border-color: var(--color-line); }
@@ -76,7 +79,86 @@ textarea.input { min-height: 96px; resize: vertical; }
 .bar { height: 6px; border-radius: 999px; background: var(--color-sur-top); overflow: hidden; }
 .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--color-gold-deep), var(--color-gold-2)); border-radius: 999px; }
 .prose p { margin: 0 0 10px; }
-.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* LA ENTRADA · el ticket del bootcamp. Muescas a los lados del talón (máscara radial) y perforación punteada. */
+.entrada { position: relative; display: grid; grid-template-columns: 1fr 188px; background:
+  radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--color-gold) 9%, transparent), transparent 55%), linear-gradient(180deg, #121014, #0b0a0d);
+  border: 1px solid var(--color-line); border-radius: 18px;
+  -webkit-mask: radial-gradient(circle 13px at calc(100% - 188px) 0, #0000 98%, #000) top / 100% 51% no-repeat, radial-gradient(circle 13px at calc(100% - 188px) 100%, #0000 98%, #000) bottom / 100% 51% no-repeat;
+          mask: radial-gradient(circle 13px at calc(100% - 188px) 0, #0000 98%, #000) top / 100% 51% no-repeat, radial-gradient(circle 13px at calc(100% - 188px) 100%, #0000 98%, #000) bottom / 100% 51% no-repeat; }
+.entrada .talon { border-left: 1.5px dashed var(--color-line); padding: 26px 22px; display: flex; flex-direction: column; justify-content: space-between; }
+@media (max-width: 720px) { .entrada { grid-template-columns: 1fr; -webkit-mask: none; mask: none; } .entrada .talon { border-left: 0; border-top: 1.5px dashed var(--color-line); } }
+/* los 30 agujeros */
+.perfo { display: grid; grid-template-columns: repeat(4, auto); gap: 10px 22px; justify-content: start; }
+.perfo .sem { display: flex; gap: 7px; flex-wrap: nowrap; }
+.agujero { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--color-faint); flex: 0 0 auto; display: block; }
+.agujero.hecho { background: var(--color-gold); border-color: var(--color-gold); }
+.agujero.revision { background: color-mix(in srgb, var(--color-gold) 40%, transparent); border-color: var(--color-gold); }
+.agujero.hito { border-radius: 3px; transform: rotate(45deg) scale(.86); }
+.agujero.hoy { border-color: var(--color-gold-2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-gold) 18%, transparent); }
+.agujero.tarde { border-color: #C2464F; }
+@media (prefers-reduced-motion: no-preference) { .agujero.hoy { animation: latido 2.4s ease-in-out infinite; } }
+@keyframes latido { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-gold) 6%, transparent); } }
+@media (max-width: 720px) { .perfo { grid-template-columns: repeat(2, auto); } .agujero { width: 13px; height: 13px; } .perfo .sem { gap: 6px; } }
+
+/* LAS INSIGNIAS · un objeto por rango, cada uno de un material más caro y más escaso que el anterior:
+   papel (Cola) → tela (Pista) → tejido con grapa (Barra) → terciopelo con costura de oro (Reservado) →
+   cuero con hebilla y pan de oro (VIP) → brazalete de oro con piedra y número de serie (Palco). Solo Palco se mueve. */
+.ins { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px 0 14px; border-radius: 8px; overflow: hidden; isolation: isolate; white-space: nowrap; vertical-align: middle; }
+.ins b { font-family: var(--font-display); font-weight: 800; font-size: 16px; letter-spacing: -.01em; position: relative; }
+.ins .cierre { position: relative; flex: 0 0 auto; }
+.ins .serie { position: relative; font-size: 10px; letter-spacing: .06em; opacity: .8; font-variant-numeric: tabular-nums; }
+.ins.chica { height: 24px; padding: 0 9px 0 8px; gap: 6px; border-radius: 5px; }
+.ins.chica b { font-size: 12px; }
+.ins.chica .serie, .ins.chica .gema { display: none; }
+.ins.apagada { filter: saturate(.7) brightness(.78); }
+
+/* Cola · entrada de papel: muescas, perforación, nada de brillo */
+.ins.cola { background: #2A2730; color: #B9AE98; border-radius: 4px;
+  -webkit-mask: radial-gradient(circle 5px at 0 50%, #0000 96%, #000) left / 51% 100% no-repeat, radial-gradient(circle 5px at 100% 50%, #0000 96%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 5px at 0 50%, #0000 96%, #000) left / 51% 100% no-repeat, radial-gradient(circle 5px at 100% 50%, #0000 96%, #000) right / 51% 100% no-repeat; }
+.ins.cola .cierre { width: 0; height: 22px; border-left: 1.5px dashed #6E6676; margin-right: 2px; }
+.ins.cola.chica .cierre { height: 14px; }
+
+/* Pista · tela blanca lisa */
+.ins.pista { background: linear-gradient(180deg, #F3EEE4, #DDD6C8); color: #2A2620; box-shadow: inset 0 -1px 0 rgba(0,0,0,.12); }
+.ins.pista .cierre { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, #bdb6a8 75%); box-shadow: 0 0 0 1.5px #b8b0a1; }
+.ins.chica.pista .cierre { width: 8px; height: 8px; }
+
+/* Barra · tejido azul con grapa metálica */
+.ins.barra { background: repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 4px), repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 4px), linear-gradient(180deg, #4B67EC, #2E47BE); color: #F2F5FF; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+.ins.barra .cierre { width: 14px; height: 22px; border-radius: 3px; background: linear-gradient(90deg, #8d93a3, #e9ecf2 45%, #8d93a3); box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.ins.chica.barra .cierre { width: 8px; height: 14px; }
+
+/* Reservado · terciopelo rojo con costura de oro */
+.ins.reservado { background: radial-gradient(120% 160% at 30% 0%, #C23A50, #7C1C2D 60%, #5A1220); color: #FBE9EC; box-shadow: inset 0 0 0 1px rgba(0,0,0,.3); }
+.ins.reservado::after { content: ""; position: absolute; inset: 4px; border: 1px dashed rgba(217,180,90,.85); border-radius: 5px; pointer-events: none; }
+.ins.chica.reservado::after { inset: 2.5px; border-radius: 3px; }
+.ins.reservado .cierre { width: 13px; height: 13px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3c4, #D9B45A 45%, #8a6a22); }
+.ins.chica.reservado .cierre { width: 8px; height: 8px; }
+
+/* VIP · cuero negro, doble pespunte, hebilla y letras en pan de oro */
+.ins.vip { background: radial-gradient(140% 120% at 20% 0%, #2a2729, #0d0c0d 70%), #0d0c0d; box-shadow: inset 0 0 0 1px #3a3436, 0 6px 18px -8px rgba(217,180,90,.5); }
+.ins.vip::after { content: ""; position: absolute; inset: 3px; border: 1px dashed rgba(217,180,90,.7); border-radius: 6px; box-shadow: inset 0 0 0 3px transparent, inset 0 0 0 4px rgba(217,180,90,.35); pointer-events: none; }
+.ins.vip b { background: linear-gradient(180deg, #F7E7B5, #D9B45A 50%, #9C7A2E); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ins.vip .cierre { width: 18px; height: 16px; border: 2.5px solid #D9B45A; border-radius: 3px; box-shadow: inset 0 0 0 1px #8a6a22; }
+.ins.vip .cierre::after { content: ""; position: absolute; left: 50%; top: -1px; bottom: -1px; width: 2px; background: #D9B45A; transform: translateX(-50%); }
+.ins.chica.vip .cierre { width: 11px; height: 10px; border-width: 1.5px; }
+.ins.vip .serie { color: #D9B45A; }
+
+/* Palco · brazalete de oro cepillado, grabado, piedra y número de serie; un destello lento */
+.ins.palco { background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 1px, transparent 1px 3px), linear-gradient(180deg, #F6E3A6 0%, #D9B45A 38%, #A9842F 70%, #E7C976 100%); color: #3A2A06;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(90,60,10,.35), 0 8px 24px -8px rgba(217,180,90,.75); }
+.ins.palco b { color: #3A2A06; text-shadow: 0 1px 0 rgba(255,240,200,.65), 0 -1px 0 rgba(80,55,10,.35); }
+.ins.palco .gema { position: relative; width: 14px; height: 14px; transform: rotate(45deg); border-radius: 2px; background: linear-gradient(135deg, #ffffff, #bfe6ff 40%, #6aa7d8 70%, #e9f6ff); box-shadow: 0 0 0 1.5px #8a6a22, 0 0 10px rgba(191,230,255,.8); }
+.ins.palco .cierre { display: none; }
+.ins.palco::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.75) 50%, transparent 65%); transform: translateX(-120%); pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) { .ins.palco:not(.apagada)::after { animation: destello 5s ease-in-out 1s infinite; } }
+@keyframes destello { 0%, 70% { transform: translateX(-120%); } 90%, 100% { transform: translateX(120%); } }
+
+.cita { font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.3; color: var(--color-gold-2); }
+.regla { border-top: 1px solid var(--color-line-soft); }
 }
 :root[data-tema="claro"] { --color-green: #2A5A33; --color-red: #B91C1C; }
 :root[data-tema="claro"] .card { background: var(--color-sur-hi); box-shadow: 0 1px 2px rgba(0,0,0,.04); }
