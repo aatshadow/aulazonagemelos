@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 import { Play, Radio, Trophy, Lock, Check } from 'lucide-react'
 import { Entrada, Pulsera } from '../ui/camino.jsx'
 import { DIAS, RANGOS } from '../data/bootcamp.js'
-import { useData, diaActual, estadoDia, rangoDe, ascensoPendiente, fmtFecha, fmtHora, hace, seccionAbierta } from '../data/store.jsx'
+import { faseDeDia, nichoDe } from '../data/programa.js'
+import { Acceso } from '../ui/acceso.jsx'
+import { useData, directosDe, diaActual, estadoDia, rangoDe, ascensoPendiente, fmtFecha, fmtHora, hace, seccionAbierta } from '../data/store.jsx'
 
 /* MI CAMINO · la pantalla de inicio. No pregunta «qué quieres ver»: dice qué te toca hoy.
    En el bootcamp manda la ENTRADA; a partir de Pista, la PULSERA y el siguiente hito. */
@@ -25,6 +27,7 @@ function Hoy() {
           <div className="relative grid place-items-center" style={{ aspectRatio: '16 / 7', background: 'radial-gradient(80% 120% at 30% 20%, #1d1a20, #060507)' }}>
             <span className="avatar gold transition-transform group-hover:scale-105" style={{ width: 64, height: 64 }}><Play size={24} fill="currentColor" /></span>
             <span className="absolute left-5 bottom-4 text-[13px] text-dim">Píldora del día {n} · {d.dur}</span>
+            <span className="absolute right-5 top-4 tag">Fase {faseDeDia(n).n} · {faseDeDia(n).nombre}</span>
           </div>
           <div className="p-6">
             <div className="display text-[26px] leading-tight">{d.titulo}</div>
@@ -46,10 +49,16 @@ function Lateral() {
   const r = rangoDe(s)
   const sig = RANGOS[s.rango + 1]
   const pend = ascensoPendiente(s)
-  const prox = s.directos.filter((d) => new Date(d.fecha) > Date.now()).sort((a, b) => new Date(a.fecha) - new Date(b.fecha))[0]
+  const prox = directosDe(s).filter((d) => new Date(d.fecha) > Date.now())[0]
   const win = s.posts.find((p) => p.canal === 'wins')
   return (
     <aside className="flex flex-col gap-8">
+      <section>
+        <h2 className="text-[22px] mb-3">Tu programa</h2>
+        <Acceso compacto />
+        <div className="text-dim text-[14px] mt-2">{s.nicho ? <>Nicho: <b className="text-white">{nichoDe(s.nicho).nombre}</b></> : 'Aún no has elegido nicho.'}</div>
+        <Link to="/sistema" className="text-gold-2 text-[14px] mt-2 inline-block">Ver el sistema</Link>
+      </section>
       <section>
         <h2 className="text-[22px] mb-3">Tu rango</h2>
         <Pulsera rango={s.rango} />
@@ -57,7 +66,7 @@ function Lateral() {
         <Link to="/perfil" className="text-gold-2 text-[14px] mt-2 inline-block">Ver la escalera</Link>
       </section>
       {prox && <section className="regla pt-6">
-        <h2 className="text-[22px] mb-2">Próximo directo</h2>
+        <h2 className="text-[22px] mb-2">Próxima clase en directo</h2>
         <div className="flex items-center gap-2 text-[13px] text-dim"><Radio size={14} className="text-gold" /> {prox.tipo} · {fmtFecha(prox.fecha, { weekday: 'long' })}, {fmtHora(prox.fecha)}</div>
         <div className="text-[15px] mt-1.5">{prox.titulo}</div>
         <Link to="/directos" className="text-gold-2 text-[14px] mt-2 inline-block">Ver directos</Link>
@@ -103,7 +112,7 @@ export default function Camino() {
   const enBootcamp = s.rango === 0
   return (
     <div>
-      <p className="text-dim text-[15px] mb-4">Buenas, {nombre}.</p>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-4"><p className="text-dim text-[15px]">Buenas, {nombre}.</p><p className="text-dimmer text-[13px]">Marketing de afiliados con IA y sin enseñar la cara · <Link to="/sistema" className="text-gold-2">el sistema</Link></p></div>
       {enBootcamp && !s.bienvenida ? (
         <>
           <Entrada />

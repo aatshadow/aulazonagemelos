@@ -8,6 +8,8 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
 import * as M from './mock.js'
 import { DIAS, RANGOS } from './bootcamp.js'
+import { proximosDirectos, GRABACIONES, NOVEDADES, MESES_ACCESO, DESBLOQUEO } from './programa.js'
+import { PLANTILLAS, FORMATOS, DEALS } from './herramientas.js'
 
 /* ------------------------------------------------------------- reducer ---- */
 function reducer(s, a) {
@@ -35,6 +37,22 @@ function reducer(s, a) {
     case 'ascenso:nuevo': return { ...s, ascensos: [a.ascenso, ...s.ascensos] }
     case 'revisar': return revisar(s, a)
     case 'escenario': return { ...s, ...a.parche }
+    case 'nicho': return { ...s, nicho: a.nicho }
+    case 'col:guardar': { const l = s[a.col] || []; return { ...s, [a.col]: l.some((x) => x.id === a.item.id) ? l.map((x) => (x.id === a.item.id ? { ...x, ...a.item } : x)) : [a.item, ...l] } }
+    case 'col:borrar': return { ...s, [a.col]: (s[a.col] || []).filter((x) => x.id !== a.id) }
+    case 'directo:editar': return { ...s, directosEdit: { ...s.directosEdit, [a.id]: { ...s.directosEdit[a.id], ...a.cambios } } }
+    case 'bonus:estado': return { ...s, bonusEstados: { ...s.bonusEstados, [a.alumno]: { ...s.bonusEstados[a.alumno], [a.id]: a.estado } } }
+    case 'enlace:nuevo': return { ...s, comisiones: { ...s.comisiones, enlaces: [...s.comisiones.enlaces, a.enlace] } }
+    case 'enlace:borrar': return { ...s, comisiones: { enlaces: s.comisiones.enlaces.filter((e) => e.id !== a.id), apuntes: s.comisiones.apuntes.filter((x) => x.enlace !== a.id) } }
+    case 'apunte:nuevo': return { ...s, comisiones: { ...s.comisiones, apuntes: [...s.comisiones.apuntes, a.apunte] } }
+    case 'apunte:borrar': return { ...s, comisiones: { ...s.comisiones, apuntes: s.comisiones.apuntes.filter((x) => x.id !== a.id) } }
+    case 'deal:solicitar': return { ...s, solicitudesDeal: [...s.solicitudesDeal.filter((x) => x.deal !== a.deal), { deal: a.deal, estado: 'pendiente', en: new Date().toISOString(), alumno: s.perfil.nombre }] }
+    case 'deal:responder': return { ...s, solicitudesDeal: s.solicitudesDeal.map((x) => (x.deal === a.deal ? { ...x, estado: a.estado, enlace: a.enlace || x.enlace, respondida: new Date().toISOString() } : x)) }
+    case 'bonus:nivel': return { ...s, bonusRapidez: a.nivel }
+    case 'bonus:reservar': return { ...s, reservasBonus: { ...s.reservasBonus, [a.id]: { estado: a.estado, cuando: a.cuando || null, en: new Date().toISOString() } } }
+    case 'guardar:ia': return { ...s, guardados: [a.item, ...s.guardados] }
+    case 'borrar:ia': return { ...s, guardados: s.guardados.filter((g) => g.id !== a.id) }
+    case 'novedades:leidas': return { ...s, novLeidas: new Date().toISOString() }
     case 'reset': return a.estado
     default: return s
   }
@@ -74,7 +92,7 @@ export const ESCENARIOS = {
   pista: { nombre: 'Ya en Pista', parche: () => ({ alta: new Date(Date.now() - 34 * DIA).toISOString(), offset: 0, entregas: entregasHasta(30), rango: 1, ascensos: [], bienvenida: true }) },
 }
 
-const demoKey = (aula) => `aula:${aula.key}:demo:v6`
+const demoKey = (aula) => `aula:${aula.key}:demo:v7`
 const vistasIniciales = () => M.secciones.flatMap((s) => s.modulos.flatMap((m) => m.lecciones.filter((l) => l.vista).map((l) => l.id)))
 function estadoDemo(aula) {
   const base = {
@@ -83,13 +101,16 @@ function estadoDemo(aula) {
     alumno: M.alumnoDemo, accesos: [{ nombre: 'Zona Gemelos VIP' }],
     secciones: M.secciones.map((s) => ({ ...s, modulos: s.modulos.map((m) => ({ ...m, lecciones: m.lecciones.map((l) => ({ ...l, recursos: M.recursos[l.id] || [] })) })) })),
     vistas: vistasIniciales(), ultima: 'f22',
-    directos: M.directos, confirmados: [], grabaciones: M.grabaciones, grabVistas: M.grabaciones.filter((g) => g.vista).map((g) => g.id),
+    directos: proximosDirectos(10), confirmados: [], grabaciones: GRABACIONES, grabVistas: ['g1'],
+    nicho: null, novedades: NOVEDADES, novLeidas: null,
+    plantillas: PLANTILLAS, formatos: FORMATOS, deals: DEALS, directosNuevos: [], directosEdit: {}, bonusEstados: {},
+    comisiones: { enlaces: [], apuntes: [] }, solicitudesDeal: [], bonusRapidez: 10, reservasBonus: {}, guardados: [],
     canales: M.canales, posts: M.posts.map((p) => ({ ...p, mia: false, comentarios: [] })), leidos: {},
     soporte: M.soporteDemo, preguntas: [],
     ...ESCENARIOS.dia17.parche(), revisadas: [],
   }
   // el temario viene siempre de mock.js, nunca de lo guardado en el navegador
-  try { const s = JSON.parse(localStorage.getItem(demoKey(aula))); if (s && s._v === 6) return { ...base, ...s, secciones: base.secciones } } catch {}
+  try { const s = JSON.parse(localStorage.getItem(demoKey(aula))); if (s && s._v === 7) return { ...base, ...s, secciones: base.secciones, directos: proximosDirectos(10) } } catch {}
   return base
 }
 const accionesDemo = (dispatch, get) => ({
@@ -115,6 +136,22 @@ const accionesDemo = (dispatch, get) => ({
   pasarDia: () => dispatch({ type: 'reloj', dias: 1 }),
   solicitarAscenso: async (prueba) => { const s = get(); dispatch({ type: 'ascenso:nuevo', ascenso: { id: 'as-' + Date.now(), de: s.rango, a: s.rango + 1, ...prueba, estado: 'revision', en: new Date().toISOString() } }) },
   revisar: async (id, ok, nota = '') => dispatch({ type: 'revisar', id, ok, nota }),
+  elegirNicho: (nicho) => dispatch({ type: 'nicho', nicho }),
+  guardarEn: (col, item) => dispatch({ type: 'col:guardar', col, item: { id: item.id || col.slice(0, 2) + Date.now(), ...item } }),
+  borrarDe: (col, id) => dispatch({ type: 'col:borrar', col, id }),
+  editarDirecto: (id, cambios) => dispatch({ type: 'directo:editar', id, cambios }),
+  estadoBonus: (alumno, id, estado) => dispatch({ type: 'bonus:estado', alumno, id, estado }),
+  nuevoEnlace: (enlace) => dispatch({ type: 'enlace:nuevo', enlace: { id: 'e' + Date.now(), ...enlace } }),
+  borrarEnlace: (id) => dispatch({ type: 'enlace:borrar', id }),
+  nuevoApunte: (apunte) => dispatch({ type: 'apunte:nuevo', apunte: { id: 'ap' + Date.now(), ...apunte } }),
+  borrarApunte: (id) => dispatch({ type: 'apunte:borrar', id }),
+  solicitarDeal: (deal) => dispatch({ type: 'deal:solicitar', deal }),
+  responderDeal: (deal, estado, enlace) => dispatch({ type: 'deal:responder', deal, estado, enlace }),
+  nivelBonus: (nivel) => dispatch({ type: 'bonus:nivel', nivel }),
+  reservarBonus: (id, estado, cuando) => dispatch({ type: 'bonus:reservar', id, estado, cuando }),
+  guardarIA: (item) => dispatch({ type: 'guardar:ia', item: { id: 'g' + Date.now(), en: new Date().toISOString(), ...item } }),
+  borrarIA: (id) => dispatch({ type: 'borrar:ia', id }),
+  leerNovedades: () => dispatch({ type: 'novedades:leidas' }),
   escenario: (k) => dispatch({ type: 'escenario', parche: ESCENARIOS[k].parche() }),
   salir: async () => {},
   reiniciarDemo: () => { const s = get(); localStorage.removeItem(demoKey(s.aula)); dispatch({ type: 'reset', estado: estadoDemo(s.aula) }) },
@@ -133,7 +170,8 @@ export function DataProvider({ aula, children }) {
   const ref = useRef(state); ref.current = state
   const get = () => ref.current
   const acciones = useMemo(() => accionesDemo(dispatch, get), [])
-  useEffect(() => { try { localStorage.setItem(demoKey(aula), JSON.stringify({ ...state, _v: 6 })) } catch {} }, [state])
+  useEffect(() => { const k = new URLSearchParams(location.search).get('escenario'); if (k && ESCENARIOS[k]) acciones.escenario(k) }, [])
+  useEffect(() => { try { localStorage.setItem(demoKey(aula), JSON.stringify({ ...state, _v: 7 })) } catch {} }, [state])
   const api = useMemo(() => ({ state, dispatch, acciones, aula: state.aula, modulo: (m) => (state.aula?.modulos_activos || []).includes(m) }), [state, acciones])
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>
 }
@@ -185,3 +223,24 @@ export const colaRevision = (s) => [
   ...M.revisionDemo.filter((r) => !s.revisadas.includes(r.id)),
 ].sort((a, b) => (a.creado < b.creado ? 1 : -1))
 export const hoyLargo = () => new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
+
+/* ---- el programa de 12 meses: acceso (formación + soporte ilimitado) desde el alta ---- */
+export const accesoDe = (s) => {
+  const inicio = new Date(s.alta); const fin = new Date(inicio); fin.setMonth(fin.getMonth() + MESES_ACCESO)
+  const ahora = Date.now() + (s.offset || 0) * DIA
+  const total = fin - inicio; const pasado = Math.min(total, Math.max(0, ahora - inicio))
+  const dias = Math.max(0, Math.ceil((fin - ahora) / DIA))
+  return { inicio, fin, dias, meses: Math.max(0, Math.round(dias / 30.4)), mes: Math.min(MESES_ACCESO, Math.floor(pasado / (total / MESES_ACCESO)) + 1), pct: Math.round((pasado / total) * 100), activo: dias > 0 }
+}
+export const novedadesSinLeer = (s) => (s.novedades || []).filter((n) => !s.novLeidas || n.fecha > s.novLeidas).length
+
+/* ---- desbloqueo «a su debido tiempo»: un día del bootcamp y/o un rango. Lo terminado del bootcamp (rango > 0) lo abre todo lo de días. ---- */
+export const abiertoDesde = (s, req = {}) => { if (esEquipo(s)) return true; if (typeof req === 'string') req = DESBLOQUEO[req] || {}; return abiertoReq(s, req) }
+const abiertoReq = (s, req) => s.rango >= (req.rango || 0) && (!req.dia || s.rango > 0 || diaActual(s) >= req.dia)
+export const reqFase = (f) => DESBLOQUEO[f.id] || {}
+export const reqLeccion = (f, l) => (l.desbloqueo && DESBLOQUEO[l.desbloqueo]) || reqFase(f)
+export const textoReq = (req) => { if (typeof req === 'string') req = DESBLOQUEO[req] || {}; return textoReq2(req) }
+const textoReq2 = (req) => req.rango ? `Se abre al llegar a ${RANGOS[req.rango].nombre}` : `Se abre el día ${req.dia} del bootcamp`
+
+/* los directos: los generados (2 por semana) con lo que dirección les ha cambiado + los que ha creado */
+export const directosDe = (s) => [...s.directos.map((d) => ({ ...d, ...(s.directosEdit?.[d.id] || {}) })), ...(s.directosNuevos || [])].filter((d) => !d.cancelado).sort((a, b) => new Date(a.fecha) - new Date(b.fecha))

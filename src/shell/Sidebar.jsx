@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { Ticket, CalendarDays, GraduationCap, Radio, MessageSquare, LifeBuoy, Sparkles, UserRound, Settings, Users, ShieldCheck, Trophy, Lock, Stamp, Clapperboard } from 'lucide-react'
-import { useData, noLeidos, diaActual, colaRevision, esEquipo, misTickets, puedeVerCanal } from '../data/store.jsx'
+import { Ticket, CalendarDays, GraduationCap, Radio, MessageSquare, LifeBuoy, Sparkles, UserRound, Settings, Users, ShieldCheck, Trophy, Lock, Stamp, Clapperboard, Layers, Megaphone, MessagesSquare, Clapperboard as Film, Handshake, Wand2, PenTool, Wallet, Gift, BarChart3, Wrench } from 'lucide-react'
+import { useData, noLeidos, diaActual, colaRevision, esEquipo, misTickets, puedeVerCanal, novedadesSinLeer, abiertoDesde } from '../data/store.jsx'
 import { Pulsera } from '../ui/camino.jsx'
 import { RANGOS } from '../data/bootcamp.js'
 import { cn } from '../utils/cn.js'
@@ -20,17 +20,30 @@ export default function Sidebar({ onNavigate }) {
       { to: '/bootcamp', icon: CalendarDays, label: 'Bootcamp', badge: state.rango === 0 && state.bienvenida && dia <= 30 ? `Día ${dia}` : null },
       { to: '/perfil', icon: UserRound, label: 'Mi perfil' },
     ] },
-    modulo('formacion') && { nombre: 'Formación', items: [{ to: '/formacion', icon: GraduationCap, label: 'Temario' }] },
+    { nombre: 'Programa · 12 meses', items: [
+      { to: '/sistema', icon: Layers, label: 'El sistema', badge: state.nicho ? null : 'Elige nicho' },
+      modulo('directos') && { to: '/directos', icon: Radio, label: 'Clases en directo' },
+      modulo('formacion') && { to: '/formacion', icon: GraduationCap, label: 'Módulos completos' },
+      { to: '/novedades', icon: Megaphone, label: 'Novedades', badge: novedadesSinLeer(state) || null },
+    ].filter(Boolean) },
+    { nombre: 'Herramientas', items: [
+      { to: '/deals', icon: Handshake, label: 'Deals con plataformas', req: 'deals' },
+      { to: '/contenido', icon: Film, label: 'Contenido que vende', req: 'contenidoVende' },
+      { to: '/ia/contenido', icon: PenTool, label: 'IA de contenido', req: 'iaContenido' },
+      { to: '/plantillas', icon: MessagesSquare, label: 'Plantillas de mensajes', req: 'plantillas' },
+      { to: '/ia/mensajes', icon: Wand2, label: 'IA de mensajes', req: 'iaMensajes' },
+      { to: '/comisiones', icon: Wallet, label: 'Mis comisiones', req: 'comisiones' },
+    ].map((it) => ({ ...it, lock: !esEquipo(state) && !abiertoDesde(state, it.req) })) },
     (modulo('comunidad') || modulo('directos')) && { nombre: 'Comunidad', items: [
+      { to: '/bonus', icon: Gift, label: 'Mis bonus' },
       modulo('comunidad') && { to: '/comunidad', icon: MessageSquare, label: 'Comunidad', badge: sinLeer || null },
       { to: '/top', icon: Trophy, label: 'Top 10 del mes' },
-      modulo('directos') && { to: '/directos', icon: Radio, label: 'Directos' },
     ].filter(Boolean) },
     (modulo('soporte') || modulo('pregunta')) && { nombre: 'Ayuda', items: [
       modulo('soporte') && { to: '/comunidad/soporte', icon: LifeBuoy, label: esEquipo(state) ? 'Tickets' : 'Soporte directo', badge: (esEquipo(state) ? misTickets(state).filter((t) => t.estado === 'abierto') : misTickets(state).filter((t) => t.estado === 'en curso' && t.mensajes.at(-1)?.de === 'equipo')).length || null },
       modulo('pregunta') && { to: '/pregunta', icon: Sparkles, label: 'Pregunta a la IA' },
     ].filter(Boolean) },
-    state.rol === 'direccion' && { nombre: 'Dirección', items: [{ to: '/direccion', icon: Users, label: 'Alumnos', end: true }, { to: '/direccion/revision', icon: Stamp, label: 'Revisión', badge: revisar || null }, { to: '/direccion/equipo', icon: ShieldCheck, label: 'Equipo' }] },
+    state.rol === 'direccion' && { nombre: 'Dirección', items: [{ to: '/direccion', icon: Users, label: 'Alumnos', end: true }, { to: '/direccion/revision', icon: Stamp, label: 'Revisión', badge: revisar || null }, { to: '/direccion/metricas', icon: BarChart3, label: 'Métricas' }, { to: '/direccion/programa', icon: Radio, label: 'Programa' }, { to: '/direccion/herramientas', icon: Wrench, label: 'Herramientas', badge: state.solicitudesDeal.filter((x) => x.estado === 'pendiente').length || null }, { to: '/direccion/bonus', icon: Gift, label: 'Bonus' }, { to: '/direccion/equipo', icon: ShieldCheck, label: 'Equipo' }] },
     { nombre: 'Cuenta', items: [{ to: '/ajustes', icon: Settings, label: 'Ajustes' }] },
   ].filter(Boolean)
   const nombre = state.perfil?.nombre || state.alumno?.nombre || ''

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, RotateCcw } from 'lucide-react'
 import Sidebar from './Sidebar.jsx'
 import { useData, ESCENARIOS } from '../data/store.jsx'
 import { Logo } from '../ui/Logo.jsx'
@@ -8,7 +8,7 @@ import { Logo } from '../ui/Logo.jsx'
 const ROLES = [['alumno', 'Alumno'], ['moderador', 'Moderador'], ['direccion', 'Dirección (admin)']]
 
 export default function Layout() {
-  const { state, acciones } = useData()
+  const { state, acciones, aula } = useData()
   const [abierto, setAbierto] = useState(false)
   const loc = useLocation()
   /* Accesos rápidos: `?rol=direccion` en la URL fija el rol (para enseñar el lado del equipo con un enlace). */
@@ -26,7 +26,7 @@ export default function Layout() {
       <div className="flex-1 min-w-0 h-full flex flex-col">
         <div className="flex items-center gap-3 px-4 md:px-8 py-2 text-[13px] border-b border-line-soft bg-ink">
           <button className="md:hidden btn ghost sm" onClick={() => setAbierto(!abierto)} aria-label="Menú">{abierto ? <X size={16} /> : <Menu size={16} />}</button>
-          <span className="md:hidden"><Logo size={24} sub={false} /></span>
+          <img src={aula?.logo || '/marca/zonagemelos/G-128.png'} alt="" className="md:hidden rounded-full" width={26} height={26} />
           <span className="tag hide-mobile">vista previa</span>
           <span className="text-dimmer hide-mobile">Viendo como</span>
           <select className="input" style={{ width: 'auto', padding: '4px 10px', fontSize: 13 }} value={state.rol} onChange={(e) => acciones.cambiarRol(e.target.value)}>
@@ -38,7 +38,7 @@ export default function Layout() {
           </select>
           <span className="flex-1" />
           <button className="btn ghost sm hide-mobile" onClick={acciones.pasarDia} title="Avanza el reloj un día (solo en la vista previa)">Simular mañana</button>
-          <button className="btn outline sm" onClick={acciones.reiniciarDemo}>Reiniciar</button>
+          <button className="btn outline sm" onClick={acciones.reiniciarDemo} title="Reiniciar la vista previa"><RotateCcw size={14} /><span className="hide-mobile">Reiniciar</span></button>
         </div>
         {/* la comunidad va a sangre (estilo Discord): sin márgenes ni scroll de página; el resto, con su columna */}
         {loc.pathname.startsWith('/comunidad')

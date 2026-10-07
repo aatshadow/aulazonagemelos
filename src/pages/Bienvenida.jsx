@@ -11,10 +11,10 @@ const PASOS = [
   ['Una prueba', 'Lo subes al aula. Cuando entregas y pasa la medianoche, se abre el día siguiente.'],
 ]
 const SIEMPRE = [
-  ['Q&A cada semana', 'En directo, con tus números delante.'],
-  ['Un invitado al mes', 'Gente que hace esto a lo grande, contándolo sin filtro.'],
-  ['La comunidad', 'Comparte tus victorias en #wins y mira cómo suben los demás.'],
-  ['Soporte directo', 'Si algo no te funciona, te contesta el equipo.'],
+  ['12 meses de formación', 'Acceso a todo el programa y sus actualizaciones.'],
+  ['2 clases en directo cada semana', 'Unas 100 en el año. Se graban y quedan en el aula.'],
+  ['Las herramientas', 'Plantillas de mensajes, contenido que vende, deals con las plataformas y la IA que te crea los mensajes y el contenido. Se abren a su debido tiempo.'],
+  ['Comunidad de afiliados y soporte ilimitado', 'Comparte tus resultados en #wins y, si algo no te funciona, te contesta el equipo durante los 12 meses.'],
 ]
 
 export default function Bienvenida() {
@@ -25,6 +25,8 @@ export default function Bienvenida() {
     <div className="max-w-[920px]">
       <p className="text-dim text-[15px] mb-2">Bienvenida</p>
       <h1 className="text-[40px] md:text-[60px] max-w-[16ch]">Esto no es un curso. Es una escalera.</h1>
+      <p className="cita mt-5 max-w-[60ch]">«Aprende a hacerte rico con el marketing de afiliados igual que hemos hecho nosotros, usando la IA y sin necesidad de mostrar tu cara.»</p>
+      <p className="text-dim text-[15px] mt-3 max-w-[64ch]">Un mismo sistema en cinco fases (elegir oferta, crear contenido sin cara con IA, captar tráfico, convertir y escalar) en trading, casinos o plataformas fitness. El primer mes es el bootcamp de 30 días: el arranque hasta tu primera conversión.</p>
       <div className="card overflow-hidden mt-8">
         <div className="grid place-items-center" style={{ aspectRatio: '16 / 9', background: 'radial-gradient(80% 120% at 30% 20%, #1d1a20, #060507)' }}>
           <div className="text-center"><span className="avatar gold" style={{ width: 76, height: 76 }}><Play size={28} fill="currentColor" /></span><div className="text-dim text-[14px] mt-3">Los gemelos te explican el método · vídeo pendiente de grabar · 8 min</div></div>

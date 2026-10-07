@@ -5,6 +5,7 @@ import { Banner } from '../ui/index.jsx'
 import { Agujero } from '../ui/camino.jsx'
 import { cn } from '../utils/cn.js'
 import { DIAS, SEMANAS } from '../data/bootcamp.js'
+import { faseDeDia } from '../data/programa.js'
 import { useData, estadoDia, diaActual, fmtFecha } from '../data/store.jsx'
 
 const ESTADO = {
@@ -25,7 +26,7 @@ export default function Bootcamp() {
         {SEMANAS.map((w) => (
           <section key={w.n}>
             <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-              <h2 className="text-[26px]">Semana {w.n}: {w.titulo}</h2>
+              <h2 className="text-[26px]">Semana {w.n}: {w.titulo} <span className="inline-flex gap-1.5 align-middle ml-1">{[...new Set(DIAS.filter((d) => d.semana === w.n).map((d) => faseDeDia(d.n)))].map((f) => <Link key={f.id} to={`/sistema/${f.id}`} className="tag">Fase {f.n} · {f.corto}</Link>)}</span></h2>
               <span className="text-dimmer text-[13.5px]">{w.meta}</span>
             </div>
             <ol className="regla">
@@ -125,7 +126,7 @@ export function Dia() {
           </div>
           <div className="mt-6 flex items-baseline gap-4">
             <span className="display text-[60px] leading-[.8] text-gold-3">{n}</span>
-            <div><div className="text-dim text-[14px]">Día {n} de 30{d.hito && <span className="text-gold-2"> · hito: {d.hito}</span>}</div><h1 className="text-[32px] md:text-[40px]">{d.titulo}</h1></div>
+            <div><div className="text-dim text-[14px]">Día {n} de 30{d.hito && <span className="text-gold-2"> · hito: {d.hito}</span>} · <Link to={`/sistema/${faseDeDia(n).id}`} className="text-gold-2">Fase {faseDeDia(n).n}: {faseDeDia(n).nombre}</Link></div><h1 className="text-[32px] md:text-[40px]">{d.titulo}</h1></div>
           </div>
           <p className="text-[16.5px] leading-relaxed mt-5 max-w-[64ch]">{d.aprende}</p>
           <p className="cita mt-6 max-w-[40ch]">«{d.mentalidad}»</p>

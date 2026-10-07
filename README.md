@@ -48,3 +48,31 @@ y en Soporte se responde y se cierran hilos como equipo.
 
 No guarda nada fuera del navegador, no crea alumnos, no resetea contraseñas, no manda correos y la «IA» contesta
 con un texto de cortesía. Para todo eso está Aula Core con su base.
+
+---
+
+## v2 · el producto del lanzamiento (07-10-2026)
+Fuente: `operator/portfolio/growthinfo/clients/zona-gemelos/lanzamiento-nov/LANZAMIENTO-FUENTE-DE-VERDAD.md` §3 y
+`producto/PORTAL-PLAN-v2.md`. Todo se desbloquea **a su debido tiempo dentro del bootcamp** (`DESBLOQUEO` en `src/data/programa.js`,
+helper `abiertoDesde` en `store.jsx`, componente `<Candado>` en `ui/acceso.jsx`).
+
+| Alumno | Ruta | Se abre |
+|---|---|---|
+| El sistema (5 fases × 3 nichos, 12 meses) | `/sistema`, `/sistema/:fase/:lec` | fase 1 día 1 · tráfico día 8 · contenido día 15 · convertir día 22 · escalar en Pista |
+| Clases en directo (2/semana, cuenta atrás, grabaciones con buscador) | `/directos` | día 1 |
+| Novedades del programa | `/novedades` | día 1 |
+| Deals con las plataformas (solicitar enlace) | `/deals` | día 3 |
+| Contenido que vende · IA de contenido (bonus) | `/contenido`, `/ia/contenido` | día 15 |
+| Mis comisiones (hoja de dinero) | `/comisiones` | día 21 |
+| Plantillas de mensajes · IA de mensajes | `/plantillas`, `/ia/mensajes` | día 22 |
+| Mis bonus (para todos + por rapidez 20/10/5) | `/bonus` | día 1 |
+
+Dirección: `/direccion/metricas` · `/direccion/programa` (directos, grabaciones, novedades) · `/direccion/herramientas`
+(solicitudes de enlace, deals, plantillas, formatos) · `/direccion/bonus`. El equipo lo ve todo abierto.
+
+Vista previa: `?escenario=nuevo|dia17|dia30|pista` y `?rol=direccion` en la URL (sirven también en móvil).
+
+### Pendiente (marcado en la app como EJEMPLO / ⇢ pendiente)
+Vídeos de las lecciones del programa · días, hora y plataforma de los directos (`DIRECTOS_CFG`) · grabaciones reales ·
+plataformas y comisiones reales de los deals · plantillas y formatos reales · endpoint de la IA (`IA_CFG.endpoint`) ·
+huecos reales de los bonus · bonus de los 20 (online o presencial) · fase 2 real (Supabase en Aula Core).

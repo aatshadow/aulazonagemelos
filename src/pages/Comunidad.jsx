@@ -1,3 +1,4 @@
+import { Acceso } from '../ui/acceso.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Hash, Lock, Plus, SendHorizontal, Reply, SmilePlus, X, Users, ImageIcon, Ticket, LifeBuoy, CheckCircle2, UserCheck, Info } from 'lucide-react'
@@ -141,6 +142,7 @@ function Soporte() {
     <section className="flex-1 min-w-0 flex flex-col bg-black">
       <Cabecera icon={LifeBuoy} titulo={eq ? 'Tickets' : 'Soporte'} tema={eq ? 'Todo lo que han abierto los alumnos. Asígnatelo, responde y ciérralo.' : 'Abre un ticket y te contesta el equipo, en privado.'} />
       <div className="flex-1 overflow-auto min-h-0 p-6 md:p-8">
+        {!eq && <div className="max-w-[860px] mb-8"><Acceso soporte /></div>}
         {!eq && (
           <div className="max-w-[560px]">
             <h1 className="text-[28px]">Abre un ticket</h1>
